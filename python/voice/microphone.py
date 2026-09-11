@@ -8,29 +8,34 @@ target_folder = Path(r"D:\DevStuff\O-hio\python\audio")
 SAMPLE = 16000
 DURATION = 5
 CHANNELS = 1
-OUTPUT_FILE = f"mic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
 
-file_path = target_folder / OUTPUT_FILE
+def record_audio():
+  OUTPUT_FILE = f"mic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
 
-target_folder.mkdir(parents=True, exist_ok=True)
+  file_path = target_folder / OUTPUT_FILE
 
-print("SPEAK NOW...")
+  target_folder.mkdir(parents=True, exist_ok=True)
 
-audio = sd.rec(
-  int(SAMPLE * DURATION),
-  samplerate= SAMPLE,
-  channels=CHANNELS,
-  dtype="int16"
-)
+  print("SPEAK NOW...")
 
-sd.wait()
 
-print("FINISHED RECORDING")
+  audio = sd.rec(
+    int(SAMPLE * DURATION),
+    samplerate= SAMPLE,
+    channels=CHANNELS,
+    dtype="int16"
+  )
 
-with wave.open(str(file_path), "wb") as file:
-  file.setnchannels(CHANNELS)
-  file.setsampwidth(2)
-  file.setframerate(SAMPLE)
-  file.writeframes(audio.tobytes())
+  sd.wait()
 
-print(f"Saved to {file_path}")
+  print("FINISHED RECORDING")
+
+  with wave.open(str(file_path), "wb") as file:
+    file.setnchannels(CHANNELS)
+    file.setsampwidth(2)
+    file.setframerate(SAMPLE)
+    file.writeframes(audio.tobytes())
+
+  print(f"Saved to {file_path}")
+
+  return file_path
