@@ -27,7 +27,7 @@ sd.wait()
 
 print("FINISHED RECORDING")
 
-with wave.open(file_path, "wb") as file:
+with wave.open(str(file_path), "wb") as file:
   file.setnchannels(CHANNELS)
   file.setsampwidth(2)
   file.setframerate(SAMPLE)
