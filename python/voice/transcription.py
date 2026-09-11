@@ -1,5 +1,5 @@
 from faster_whisper import WhisperModel
-from microphone import record_audio
+from voice.microphone import record_audio
 
 model = WhisperModel(
     "small",
@@ -24,6 +24,3 @@ def transcribe_audio():
       texts += segment.text
 
   return texts
-
-text = transcribe_audio()
-print(text)
