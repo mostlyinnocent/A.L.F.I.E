@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 from llm.mistral import generate_response
 from voice.transcription import transcribe_audio
 from tts.speech import speak

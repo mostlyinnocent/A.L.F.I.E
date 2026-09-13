@@ -1,7 +1,10 @@
 from kokoro import KPipeline
 import sounddevice as sd 
 
-pipeline = KPipeline(lang_code="a")
+pipeline = KPipeline(
+  lang_code="a",
+  repo_id="hexgrad/Kokoro-82M",
+)
 
 def speak(text):
   generator = pipeline(
