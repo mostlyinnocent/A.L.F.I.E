@@ -1,13 +1,28 @@
 import sounddevice as sd
-import wave
+import soundfile as sf
 from pathlib import Path
 from datetime import datetime
+from silero_vad import load_silero_vad, VADIterator
+import time
+
 
 target_folder = Path(r"D:\DevStuff\O-hio\python\audio")
 
-SAMPLE = 16000
-DURATION = 5
+SAMPLES = 16000
 CHANNELS = 1
+CHUNK_SIZE = 512
+MAX_DURATION = 30
+has_spoken = False
+
+model = load_silero_vad()
+
+vad = VADIterator(
+  model,
+  sampling_rate=SAMPLES,
+  min_silence_duration_ms=5000,
+  speech_pad_ms=100,
+)
+
 
 def record_audio():
   OUTPUT_FILE = f"mic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
@@ -16,26 +31,41 @@ def record_audio():
 
   target_folder.mkdir(parents=True, exist_ok=True)
 
-  print("SPEAK NOW...")
+  print("Speak Now...")
 
+  start_time = time.monotonic()
 
-  audio = sd.rec(
-    int(SAMPLE * DURATION),
-    samplerate= SAMPLE,
-    channels=CHANNELS,
-    dtype="int16"
-  )
+  try:
+    with sd.InputStream(samplerate=SAMPLES, channels=CHANNELS, dtype="float32") as stream:
+      with sf.SoundFile(file_path, mode="x", samplerate=SAMPLES, channels=CHANNELS) as file:
+        while True:
+          audio, overflow = stream.read(CHUNK_SIZE)
+          if overflow:
+            print("Warning: Input overflow occured (audio dropped)")
 
-  sd.wait()
+          audio_mono = audio[:, 0]
+          speech_event = vad(audio_mono)
+          file.write(audio)
 
-  print("FINISHED RECORDING")
+          if speech_event:
 
-  with wave.open(str(file_path), "wb") as file:
-    file.setnchannels(CHANNELS)
-    file.setsampwidth(2)
-    file.setframerate(SAMPLE)
-    file.writeframes(audio.tobytes())
+            if "start" in speech_event:
+              has_spoken = True
+              print("speech started")
 
-  print(f"Saved to {file_path}")
+            elif "end" in speech_event and has_spoken:
+              print("Speech ended.")
+              break
+          if time.monotonic() - start_time >= MAX_DURATION:
+              print("Maximum recording duration reached.")
+              break
+
+  except KeyboardInterrupt:
+    print("\nRecording interrupted")
+
+  finally:
+    vad.reset_states()
+
+  print("Svaed to:", file_path)
 
   return file_path
