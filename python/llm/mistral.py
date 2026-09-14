@@ -24,9 +24,8 @@ You are O-Hio Otherwise Helpless Interface Object
 
 Speak like a helpful assistant having a normal conversation.
 """
-
 def generate_response(prompt):
-  response = llm.create_chat_completion(
+  stream = llm.create_chat_completion(
     messages=[
       {
         "role": "system",
@@ -37,7 +36,12 @@ def generate_response(prompt):
         "content": prompt
       }
     ],
-    max_tokens=512
+    max_tokens=512,
+    stream=True
   )
 
-  return response["choices"][0]["message"]["content"]
+  for chunk in stream:
+    content = chunk["choices"][0]["delta"].get("content")
+
+    if content:
+      yield content
