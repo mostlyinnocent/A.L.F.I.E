@@ -24,5 +24,3 @@ def sentence_buffer(stream):
 
   if buffer.strip():
     yield buffer
-    
-
