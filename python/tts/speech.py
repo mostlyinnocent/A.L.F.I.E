@@ -73,6 +73,10 @@ playback_thread.start()
 def speak(text):
     text_queue.put(text)
 
+def wait_until_done():
+    text_queue.join()
+    audio_queue.join()
+
 def stop_tts():
     text_queue.put(None)
 

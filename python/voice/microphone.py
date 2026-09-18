@@ -12,19 +12,19 @@ SAMPLES = 16000
 CHANNELS = 1
 CHUNK_SIZE = 512
 MAX_DURATION = 30
-has_spoken = False
 
 model = load_silero_vad()
 
 vad = VADIterator(
   model,
   sampling_rate=SAMPLES,
-  min_silence_duration_ms=5000,
+  min_silence_duration_ms=1200,
   speech_pad_ms=100,
 )
 
 
 def record_audio():
+  has_spoken = False
   OUTPUT_FILE = f"mic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
 
   file_path = target_folder / OUTPUT_FILE
