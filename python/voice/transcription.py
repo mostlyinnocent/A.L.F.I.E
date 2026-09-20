@@ -1,6 +1,5 @@
 from faster_whisper import WhisperModel
 from voice.microphone import record_audio
-from cleanup import delete_audio
 
 model = WhisperModel(
     "small",
@@ -12,7 +11,7 @@ def transcribe_audio():
   audio = record_audio()
 
   segments, info = model.transcribe(
-      str(audio),
+      audio,
       beam_size=5
   )
 
@@ -23,5 +22,5 @@ def transcribe_audio():
 
   for segment in segments:
       texts += segment.text
-  delete_audio(audio)
+
   return texts

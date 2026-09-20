@@ -1,12 +1,7 @@
 import sounddevice as sd
-import soundfile as sf
-from pathlib import Path
-from datetime import datetime
+import numpy as np
 from silero_vad import load_silero_vad, VADIterator
 import time
-
-
-target_folder = Path(r"D:\DevStuff\O-hio\python\audio")
 
 SAMPLES = 16000
 CHANNELS = 1
@@ -25,11 +20,9 @@ vad = VADIterator(
 
 def record_audio():
   has_spoken = False
-  OUTPUT_FILE = f"mic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
+  chunks = []
 
-  file_path = target_folder / OUTPUT_FILE
-
-  target_folder.mkdir(parents=True, exist_ok=True)
+  start_time = time.monotonic()
 
   print("Speak Now...")
 
@@ -37,15 +30,15 @@ def record_audio():
 
   try:
     with sd.InputStream(samplerate=SAMPLES, channels=CHANNELS, dtype="float32") as stream:
-      with sf.SoundFile(file_path, mode="x", samplerate=SAMPLES, channels=CHANNELS) as file:
         while True:
           audio, overflow = stream.read(CHUNK_SIZE)
           if overflow:
             print("Warning: Input overflow occured (audio dropped)")
 
           audio_mono = audio[:, 0]
+          chunks.append(audio_mono.copy())
+
           speech_event = vad(audio_mono)
-          file.write(audio)
 
           if speech_event:
 
@@ -56,6 +49,7 @@ def record_audio():
             elif "end" in speech_event and has_spoken:
               print("Speech ended.")
               break
+
           if time.monotonic() - start_time >= MAX_DURATION:
               print("Maximum recording duration reached.")
               break
@@ -66,6 +60,4 @@ def record_audio():
   finally:
     vad.reset_states()
 
-  print("Svaed to:", file_path)
-
-  return file_path
+  return np.concatenate(chunks) if chunks else np.array([], dtype="float32")
