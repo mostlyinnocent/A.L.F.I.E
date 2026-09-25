@@ -1,3 +1,6 @@
+import os
+os.environ["HF_HUB_OFFLINE"] = "1"
+
 import time
 from queue import Queue
 from threading import Thread
@@ -5,7 +8,6 @@ import numpy as np
 
 from kokoro import KPipeline
 import sounddevice as sd
-
 
 pipeline = KPipeline(
     lang_code="a",

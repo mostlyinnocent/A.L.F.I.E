@@ -18,7 +18,7 @@ vad = VADIterator(
 )
 
 
-def record_audio():
+def record_audio(timeout=None):
   has_spoken = False
   chunks = []
 
@@ -50,12 +50,21 @@ def record_audio():
               print("Speech ended.")
               break
 
-          if time.monotonic() - start_time >= MAX_DURATION:
-              print("Maximum recording duration reached.")
-              break
+          elapsed = time.monotonic() - start_time
 
-  except KeyboardInterrupt:
+          if not has_spoken and timeout is not None and elapsed >= timeout:
+            print("No speech detected, timing out.")
+            return None
+
+          if elapsed >= MAX_DURATION:
+            print("Maximum recording duration reached.")
+            break
+
+  except (KeyboardInterrupt, TypeError) as e:
+    if isinstance(e, TypeError) and "cannot be casted to tensor" not in str(e):
+      raise
     print("\nRecording interrupted")
+    raise KeyboardInterrupt
 
   finally:
     vad.reset_states()

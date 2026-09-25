@@ -7,8 +7,11 @@ model = WhisperModel(
     compute_type="float16"
 )
 
-def transcribe_audio():
-  audio = record_audio()
+def transcribe_audio(timeout=None):
+  audio = record_audio(timeout=timeout)
+
+  if audio is None:
+     return None
 
   segments, info = model.transcribe(
       audio,
@@ -23,4 +26,4 @@ def transcribe_audio():
   for segment in segments:
       texts += segment.text
 
-  return texts
+  return texts if texts.strip() else None
