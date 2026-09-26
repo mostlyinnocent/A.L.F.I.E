@@ -67,7 +67,7 @@ def handle_turn(timeout=None):
     buffered_stream = generate_sentences(stream, quick_yield_single_sentence_fragment=True)
 
     for text_chunk in buffered_stream:
-      print(f"O-Hio: {text_chunk}", end=" ", flush=True)
+      print(f"A.L.F.I.E: {text_chunk}", end=" ", flush=True)
       speak(text_chunk)
 
     wait_until_done()
